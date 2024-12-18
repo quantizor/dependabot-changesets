@@ -6,6 +6,7 @@ import {
 	extractChangesetUpdate,
 	extractUpdateFromTitle,
 	extractUpdates,
+	extractChangelog,
 	generateChangeset,
 	getChangesetName,
 	isGroupedPR,
@@ -32,9 +33,11 @@ export async function run(): Promise<void> {
 		const updateType = core.getInput('update-type', { required: false }) ?? 'patch';
 		const gitUser = core.getInput('git-user', { required: false }) ?? dependabotCommitter.name;
 		const gitEmail = core.getInput('git-email', { required: false }) ?? dependabotCommitter.email;
+		const includeChangelog = core.getInput('include-changelog', { required: false }) === 'true';
 
 		const octokit = github.getOctokit(token);
 		const pr = await octokit.rest.pulls.get({ owner, repo, pull_number: Number(prNumber) });
+
 		if (pr.status !== 200) {
 			core.debug(JSON.stringify(pr, null, 4));
 			throw new Error('Error fetching PR');
@@ -71,6 +74,13 @@ export async function run(): Promise<void> {
 		if (updates.length === 0) {
 			core.info('no dependency updates found in PR');
 			return;
+		}
+
+		// Extract changelog for each update if enabled
+		if (includeChangelog) {
+			for (const update of updates) {
+				update.changelog = extractChangelog(pr.data.body ?? '', update.package);
+			}
 		}
 
 		let newUpdates = 0;
