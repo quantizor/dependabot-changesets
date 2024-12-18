@@ -70,17 +70,17 @@ export async function run(): Promise<void> {
 			}
 		}
 
-		core.debug(`Found updates: ${JSON.stringify(updates, null, 4)}`);
-		if (updates.length === 0) {
-			core.info('no dependency updates found in PR');
-			return;
-		}
-
 		// Extract changelog for each update if enabled
 		if (includeChangelog) {
 			for (const update of updates) {
 				update.changelog = extractChangelog(pr.data.body ?? '', update.package);
 			}
+		}
+
+		core.debug(`Found updates: ${JSON.stringify(updates, null, 4)}`);
+		if (updates.length === 0) {
+			core.info('no dependency updates found in PR');
+			return;
 		}
 
 		let newUpdates = 0;
@@ -101,7 +101,7 @@ export async function run(): Promise<void> {
 			}
 			await writeFile(changesetPath, newChangeset, 'utf-8');
 			newUpdates++;
-			core.info(`✅ Created changeset for ${update.package} (${update.from} -> ${update.to}))`);
+			core.info(`✅ Created changeset for ${update.package} (${update.from} -> ${update.to})`);
 		}
 
 		if (newUpdates === 0) {
