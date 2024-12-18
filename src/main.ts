@@ -42,7 +42,7 @@ export async function run(): Promise<void> {
 			core.debug(JSON.stringify(pr, null, 4));
 			throw new Error('Error fetching PR');
 		}
-		core.debug(`Found PR: '${pr.data.title}'`);
+		core.debug(`Found PR: ${JSON.stringify(pr, null, 4)}`);
 
 		let updates: PackageUpdate[] = [];
 		if (isGroupedPR(pr.data.title)) {
