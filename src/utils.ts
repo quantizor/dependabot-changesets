@@ -49,8 +49,9 @@ export function extractChangesetUpdate(body: string): PackageUpdate | undefined 
  * Extract the changelog from a PR body for a specific package
  */
 export function extractChangelog(body: string, pkg: string): string | undefined {
-	// take everything inside <details>
-	return body.slice(body.indexOf(`<details>`), body.lastIndexOf(`</details>`) + `</details>`.length) || undefined;
+	const groups = Array.from(body.matchAll(/\n?(.+)\n((?:<details>[\s\S]*?<\/details>\n?){2})/g));
+
+	return groups.find((group) => group[1].includes(pkg))?.[2];
 }
 
 export function generateChangeset(packageName: string, updateType: string, update: PackageUpdate) {

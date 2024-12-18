@@ -93,13 +93,21 @@ describe(`extractUpdateFromTitle`, () => {
 });
 
 describe('extractChangelog', () => {
-	it('extracts changelog for a package', async () => {
+	it('extracts changelog for a package from a grouped dependency PR', async () => {
 		const body = await readFile(__dirname + '/grouped-pr-body-with-table.txt', 'utf-8');
 		const changelog = extractChangelog(body, '@auth/sveltekit');
 		expect(changelog).toContain('<details>');
 		expect(changelog).toContain('</details>');
 		expect(changelog).toContain('Release notes');
 		// Skip version check as it's too fragile with invisible characters
+	});
+
+	it('extracts changelog for a package from a single dependency PR', async () => {
+		const body = await readFile(__dirname + '/single-pr-body.txt', 'utf-8');
+		const changelog = extractChangelog(body, 'nanoid');
+		expect(changelog).toContain('Changelog');
+		expect(changelog).toContain('Commits');
+		expect(changelog).toContain('37b25df')
 	});
 
 	it('returns undefined if no changelog is found', async () => {
